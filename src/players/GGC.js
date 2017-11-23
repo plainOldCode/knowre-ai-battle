@@ -13,19 +13,18 @@ import {
      getClosest //getClosest(source, targets) 
 } from '../game/boardUtilities';
 
-export default class GGPlayerD {
-	static getName() { return 'GGD' };
+export default class GGPlayerC {
+	static getName() { return 'GGC' };
 
 	constructor(color) {
-		this.name = GGPlayerD.getName();
+		this.name = GGPlayerC.getName();
 		this.color = color;
 
 		this.moveCommand = [];
 		this.moveHistory = [];
 		this.playTurn = {
 			'ALL' : 0,
-			'LOCK' : 0,
-			'GOMAJOR' : 0
+			'LOCK' : 0
 		}
 	}
 
@@ -70,16 +69,10 @@ export default class GGPlayerD {
 		if (major_targets.length<=0) {
 			playState = 'MAJOR';
 		}
-		const my_major_targets = getTilesByType(board, tileTypes.MAJOR_SPAWN).filter(target => target.player===this );
-		if (my_major_targets.length<=0) {
-			playState = 'GOMAJOR';
-		}
 
 		this.turn(playState);
 
 		let s = this.getStrategy();
-		if(playState === 'GOMAJOR')
-			s = 'MAJOR';
 
 		if (s==='MAJOR') {
 			return moving.map(source => {
@@ -89,6 +82,12 @@ export default class GGPlayerD {
 					[tileTypes.MINOR_SPAWN]: source.unitCount,
 					[tileTypes.MAJOR_SPAWN]: source.unitCount,
 					[tileTypes.NEUTRAL]: source.unitCount,
+					/*
+					[tileTypes.CAPTURE_POINT]: source.unitCount > 0 ? 1 : 0 ,
+					[tileTypes.MINOR_SPAWN]: source.unitCount > 0 ? 1 : 0,
+					[tileTypes.MAJOR_SPAWN]: source.unitCount > 0 ? 1 : 0,
+					[tileTypes.NEUTRAL]: source.unitCount > 0 ? 1 : 0,
+					*/
 				}[source.type];
 				return move(this, source, moveTowards(source, target), movingUnitCount);
 			});

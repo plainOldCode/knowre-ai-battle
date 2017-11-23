@@ -13,11 +13,11 @@ import {
      getClosest //getClosest(source, targets) 
 } from '../game/boardUtilities';
 
-export default class GGPlayerD {
-	static getName() { return 'GGD' };
+export default class GGPlayerE {
+	static getName() { return 'GGE' };
 
 	constructor(color) {
-		this.name = GGPlayerD.getName();
+		this.name = GGPlayerE.getName();
 		this.color = color;
 
 		this.moveCommand = [];
@@ -26,14 +26,15 @@ export default class GGPlayerD {
 			'ALL' : 0,
 			'LOCK' : 0,
 			'GOMAJOR' : 0
-		}
+		};
+
+		this.isFirstPlayer = null;
 	}
 
 	turn(state) {
 		this.playTurn.ALL++;
 		if (this.playTurn.hasOwnProperty(state))
 			this.playTurn[state]++;
-		//console.log(state);
 	}
 
 	getStrategy() {
@@ -48,6 +49,18 @@ export default class GGPlayerD {
 	}
 		
 	play(board) {
+		
+		const myTiles = getAllTilesWithArmyForPlayer(board, this);
+
+        if(this.isFirstPlayer === null) {
+            if(myTiles[0].x == 0) {
+                this.isFirstPlayer = true;
+            } else {
+                this.isFirstPlayer = false;
+				
+            }
+        }
+
 		let playState = 'NORMAL';
 		const allTiles = getAllTilesWithArmyForPlayer(board, this);
 
@@ -60,19 +73,32 @@ export default class GGPlayerD {
 			return false;
 		});
 
+
 		// Now move each army towards the closest capture point which is not occupied by us
-		const targets = getTilesByType(board, tileTypes.CAPTURE_POINT).filter(target => target.player !== this);
+		let targets = getTilesByType(board, tileTypes.CAPTURE_POINT).filter(target => target.player !== this);
 		const all_targets = getTilesByType(board, tileTypes.CAPTURE_POINT).filter(target => target.player);
 		if (all_targets.length >=4) {
 			playState = 'LOCK';
 		}
-		const major_targets = getTilesByType(board, tileTypes.MAJOR_SPAWN).filter(target => target.player!==this );
+		let major_targets = getTilesByType(board, tileTypes.MAJOR_SPAWN).filter(target => target.player!==this );
 		if (major_targets.length<=0) {
 			playState = 'MAJOR';
 		}
-		const my_major_targets = getTilesByType(board, tileTypes.MAJOR_SPAWN).filter(target => target.player===this );
+		let my_major_targets = getTilesByType(board, tileTypes.MAJOR_SPAWN).filter(target => target.player===this );
 		if (my_major_targets.length<=0) {
 			playState = 'GOMAJOR';
+			if (!this.isFirstPlayer) {
+				my_major_targets = getTilesByType(board, tileTypes.MAJOR_SPAWN);
+				major_targets = my_major_targets;
+
+				let enemyTiles = board.tiles[0][1];
+				if (enemyTiles.unitCount >=2)
+					major_targets.pop();
+				else
+					major_targets.shift();
+			}
+		} else {
+			targets = targets.concat( getTilesByType(board, tileTypes.MAJOR_SPAWN).filter(target => target.player!==this ));
 		}
 
 		this.turn(playState);
@@ -80,6 +106,10 @@ export default class GGPlayerD {
 		let s = this.getStrategy();
 		if(playState === 'GOMAJOR')
 			s = 'MAJOR';
+
+		function getRandomInt(min, max) {
+		  return Math.floor(Math.random() * (max - min)) + min;
+		}
 
 		if (s==='MAJOR') {
 			return moving.map(source => {
@@ -96,9 +126,9 @@ export default class GGPlayerD {
 			return moving.map(source => {
 				const target = getClosest(source, targets);
 				const movingUnitCount = {
-					[tileTypes.CAPTURE_POINT]: source.unitCount - 1,
+					[tileTypes.CAPTURE_POINT]: source.unitCount - getRandomInt(0,2),
 					[tileTypes.MINOR_SPAWN]: source.unitCount,
-					[tileTypes.MAJOR_SPAWN]: source.unitCount,
+					[tileTypes.MAJOR_SPAWN]: source.unitCount-getRandomInt(0,2),
 					[tileTypes.NEUTRAL]: source.unitCount,
 				}[source.type];
 				return move(this, source, moveTowards(source, target), movingUnitCount);
