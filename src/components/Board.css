@@ -1,0 +1,89 @@
+.board {
+	margin: auto;
+	width: 600px;
+	height: 600px;
+	
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: center;
+}
+
+.boardTile {
+	border: 1px solid #aaa;
+	border-radius: 10px;
+	
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	
+	width: 100px;
+	height: 100px;
+}
+
+.moveButton {
+	display: none;
+	cursor: pointer;
+	
+	width: 0;
+	height: 0;
+	border-left: 20px solid transparent;
+	border-right: 20px solid transparent;
+	border-bottom: 32px solid rgba(0, 0, 0, .6);
+	
+	margin-left: -20px;
+	margin-top: -16px;
+	
+	position: absolute;
+	background: none;
+}
+
+.boardTile:hover .moveButton {
+	display: block;
+}
+
+.boardTile .coordinates {
+	position: absolute;
+	font-family: monospace;
+	font-size: 12px;
+	
+	top: 2px;
+	left: 2px;
+}
+
+.moveButton.chosen {
+	display: block;
+	border-bottom-color: rgba(0, 0, 0, .8);
+}
+
+.unitCount {
+	font-size: 1.7em;
+}
+
+.tileIcon {
+	position: absolute;
+}
+
+.tileIcon path, .tileIcon polygon {
+	stroke: rgba(0, 0, 0, .2);
+	fill: none;
+}
+
+.minorSpawn, .capturePoint {
+	transform: scale(1.5);
+}
+
+.minorSpawn polygon, .capturePoint polygon {
+	stroke-width: 2.7px;
+}
+
+.majorSpawn {
+	transform: scale(1.8);
+}
+
+.majorSpawn path {
+	stroke-width: 2.2px;
+}
