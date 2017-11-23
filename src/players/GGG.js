@@ -35,10 +35,11 @@ export default class GGPlayerG {
 		this.playTurn.ALL++;
 		if (this.playTurn.hasOwnProperty(state))
 			this.playTurn[state]++;
+		console.log(this.playTurn.ALL);
 	}
 
 	isLast() {
-		return this.playTurn.ALL > 120;
+		return this.playTurn.ALL > 15;
 	}
 
 	getStrategy() {
@@ -54,6 +55,10 @@ export default class GGPlayerG {
 		
 	play(board) {
 		
+		function getRandomInt(min, max) {
+		  return Math.floor(Math.random() * (max - min)) + min;
+		}
+
 		const myTiles = getAllTilesWithArmyForPlayer(board, this);
 
         if(this.isFirstPlayer === null) {
@@ -93,7 +98,8 @@ export default class GGPlayerG {
 			}
 		} else {
 			//targets.push(board.tiles[0][0]);
-			targets = targets.concat( getTilesByType(board, tileTypes.MAJOR_SPAWN).filter(target => target.player!==this ));
+			if(getRandomInt(0,2) ==0)
+				targets = targets.concat( getTilesByType(board, tileTypes.MAJOR_SPAWN).filter(target => target.player!==this ));
 			targets = targets.concat( getTilesByType(board, tileTypes.MINOR_SPAWN).filter(target => target.player!==this ));
 			//targets = targets.concat( getTilesByType(board, tileTypes.MINOR_SPAWN).filter(target => target.player===this ));
 		}
@@ -104,9 +110,6 @@ export default class GGPlayerG {
 		if(playState === 'GOMAJOR')
 			s = 'MAJOR';
 
-		function getRandomInt(min, max) {
-		  return Math.floor(Math.random() * (max - min)) + min;
-		}
 
 		// Determine which armies we want to move
 		const moving = allTiles.filter(tile => {
@@ -119,7 +122,9 @@ export default class GGPlayerG {
 				return tile.unitCount > getRandomInt(0,3);
 			}
 			if ([tileTypes.MINOR_SPAWN].includes(tile.type)) {
-				return tile.unitCount > getRandomInt(0,2);
+				if(!this.isLast())
+					return tile.unitCount > 0;
+				return tile.unitCount > getRandomInt(0,3);
 			}
 			return false;
 		});
